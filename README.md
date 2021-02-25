@@ -19,7 +19,7 @@ If the user answers all of the questions correctly, the game should save that us
 
 ### The questions and answers
 The questions will be public to the client application through a RESTful Web API. The first question (starting point of the application) is at the URL:
-[http://courselab.lnu.se/question/1]('http://courselab.lnu.se/question/1')
+[https://courselab.lnu.se/quiz/question/1]('https://courselab.lnu.se/quiz/question/1')
 
 The response of the API will tell you what kind of question you should show to the user and where to send the answers. In other word, you have to analyze the response from the server to know how to display the questions and how to send new requests for answering the questions. Hyperlinks are provided by the server response in a RESTful way. The server responses will also give clues about what HTTP-methods to use and how to send the answers back.
 
