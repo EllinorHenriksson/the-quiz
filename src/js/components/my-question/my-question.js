@@ -21,7 +21,9 @@ customElements.define('my-question',
    * Represents a my-hello element.
    */
   class extends HTMLElement {
-    #nextURL = 'https://courselab.lnu.se/quiz/question/1'
+    #nextURL
+
+    #questionHasAlternatives
     
     #form
      /**
@@ -35,32 +37,70 @@ customElements.define('my-question',
        this.attachShadow({ mode: 'open' })
          .appendChild(template.content.cloneNode(true))
 
+         this.#nextURL = 'https://courselab.lnu.se/quiz/question/1'
+
          this.#form = this.shadowRoot.querySelector('.answerForm')
 
          this.#form.addEventListener('submit', event => this.#handleSubmit(event))
      }
 
-     #handleSubmit (event) {
+     get nextURL () {
+         return this.#nextURL
+     }
+
+     set nextURL (value) {
+         this.#nextURL = value
+     }
+
+     async #handleSubmit (event) {
         event.preventDefault()
 
         console.log('Hej hej')
+        let answer
+        if (this.#questionHasAlternatives) {
+            // To do
+        } else {
+            answer = this.shadowRoot.querySelector('input[type="text"]').value
+        }
+
+        const response = await this.#postAnswer(answer)
+        this.#checkResponse(response)
+     }
+
+     #checkResponse (response) {
+         console.log(response.status)
+     }
+
+     async #postAnswer (answer) {
+         console.log(this.#nextURL)
+         const answerBody = {'answer': answer}
+         const result = await window.fetch(this.#nextURL, {
+             method: 'post',
+             headers: {'Content-Type': 'application/json'},
+             body: JSON.stringify(answerBody)
+         })
+
+         return result.json()
      }
 
      async #getQuestion () {
          const result = await window.fetch(this.#nextURL)
-         const resultJson = result.json()
-         this.#nextURL = resultJson.nextURL
-         return resultJson
+         return result.json()
      }
 
      async presentQuestion () {
         
+        
         const question = await this.#getQuestion()
+        this.nextURL = question.nextURL
+        console.log(this.#nextURL)
         this.shadowRoot.querySelector('.question').innerText = question.question
 
         if (question.limit) {
             this.#presentAnswerTextfield(question)
+            this.#questionHasAlternatives = false
         } else if (question.alternatives) {
+            this.#questionHasAlternatives = true
            // this.#presentAnswerRadioButton(question)
         }
      }
