@@ -26,6 +26,8 @@ customElements.define('my-question',
     #questionHasAlternatives
     
     #form
+
+    #question
      /**
       * Creates an instance of the current type.
       */
@@ -40,6 +42,8 @@ customElements.define('my-question',
          this.#nextURL = 'https://courselab.lnu.se/quiz/question/1'
 
          this.#form = this.shadowRoot.querySelector('.answerForm')
+
+         this.#question = this.shadowRoot.querySelector('.question')
 
          this.#form.addEventListener('submit', event => this.#handleSubmit(event))
      }
@@ -69,6 +73,25 @@ customElements.define('my-question',
 
      #checkResponse (response) {
          console.log(response.status)
+
+         if (response.ok) {
+             response.json().then(data => {
+                 this.nextURL = data.nextURL
+                console.log(data.nextURL)
+                this.#clearPreviousQuestion()
+             this.presentQuestion()
+                })
+             
+         } else {
+             console.log('Game Over')
+         }
+     }
+
+     #clearPreviousQuestion () {
+        this.#question.removeChild(this.#question.firstChild)
+        while (this.#form.firstChild) {
+            this.#form.removeChild(this.#form.firstChild)
+        }
      }
 
      async #postAnswer (answer) {
@@ -76,15 +99,17 @@ customElements.define('my-question',
          const answerBody = {'answer': answer}
          const result = await window.fetch(this.#nextURL, {
              method: 'post',
-             headers: {'Content-Type': 'application/json'},
+             headers: { 'Content-Type': 'application/json' },
              body: JSON.stringify(answerBody)
          })
 
-         return result.json()
+         return result
      }
 
      async #getQuestion () {
+        console.log(this.#nextURL)
          const result = await window.fetch(this.#nextURL)
+         
          return result.json()
      }
 
