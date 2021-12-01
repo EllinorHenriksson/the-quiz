@@ -19,25 +19,34 @@ template.innerHTML = `
       border: #f8f8f8 5px dotted;
     }
 
-    .welcome h1 {
+    h1 {
       text-align: center;
     }
 
-    .welcome p {
+    p {
       font-weight: bold;
     }
 
-    .welcome form {
+    form {
       text-align: center;
     }
 
-    .quizApp input {
+    input {
       font-size: 16px;
       background-color: #f8f8f8;
       color: #2c3a44;  
       border: 1px solid #2c3a44;
       padding: 5px;
       cursor: pointer;
+    }
+
+    input:focus {
+    border: 2px solid #2c3a44;
+    background-color: #f0eb89;
+    }
+
+    input:hover {
+      transform: translate(1px, 1px);
     }
 
   </style>
@@ -99,6 +108,7 @@ customElements.define('my-quiz-app2',
       
       this.#clearWindow()
       this.#fillWindow('my-question2')
+      this.#startGame()
     }
 
     #clearWindow () {
@@ -108,6 +118,10 @@ customElements.define('my-quiz-app2',
     #fillWindow (myCustomElement) {
       const element = document.createElement(myCustomElement)
       this.#quizApp.appendChild(element)
+    }
+
+    #startGame () {
+      this.shadowRoot.querySelector('my-question2').startGame()
     }
 
   }

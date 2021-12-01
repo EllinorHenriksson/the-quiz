@@ -16,8 +16,17 @@ template.innerHTML = `
     padding: 5px;
   }
 
+  input:focus {
+    border: 2px solid #2c3a44;
+    background-color: #f0eb89;
+  }
+
   input[type="submit"] {
     cursor: pointer;
+  }
+
+  input[type="submit"]:hover {
+    transform: translate(1px, 1px);
   }
 </style>
 

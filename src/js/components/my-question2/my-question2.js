@@ -1,145 +1,103 @@
-/**
- * The my-hello web component module.
- *
- * @author // TODO: YOUR NAME <YOUR EMAIL>
- * @version 1.1.0
- */
-
-// Define template.
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
+    input {
+      font-size: 16px;
+      background-color: #f8f8f8;
+      color: #2c3a44;  
+      border: 1px solid #2c3a44;
+      padding: 5px;
+    }
+
+    input:focus {
+        border: 2px solid #2c3a44;
+        background-color: #f0eb89;
+    }
+
+    input[type="submit"] {
+        cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+        transform: translate(1px, 1px);
+    }
+
+    .answerRadio label, .answerRadio input[type="submit"] {
+        display: block;
+        margin-top: 5px;
+        right: 0;
+    }
+
+    .answerRadio input[type="submit"] {
+        position: absolute;
+        right: 0px;
+        bottom: 0px;
+    }
+
+    .answerRadio {
+        position: relative;
+    }
+
+    .hidden {
+        display: none;
+    }
   </style>
-  <div class="quizQuestion">
-      <h2 class="question">Question</h2>
-      <form class="answerForm"></form>
-  </div>
+  <p class="question"></p>
+  <form class="answerText hidden">
+    <input type="text" placeholder="Answer">
+    <input type="submit" value="Submit">
+  </form>
+  <form class="answerRadio hidden">
+    <label><input type="radio" name="alternative" value="alt1">Alternative 1</label>
+    <label><input type="radio" name="alternative" value="alt1">Alternative 1</label>
+    <label><input type="radio" name="alternative" value="alt1">Alternative 1</label>
+    <input type="submit" value="Submit">
+  </form>
 `
 
 customElements.define('my-question2',
-  /**
-   * Represents a my-hello element.
-   */
   class extends HTMLElement {
-    #nextURL
-
-    #questionHasAlternatives
     
-    #form
+    #response
 
     #question
-     /**
-      * Creates an instance of the current type.
-      */
-     constructor () {
-       super()
 
-       // Attach a shadow DOM tree to this element and
-       // append the template to the shadow root.
-       this.attachShadow({ mode: 'open' })
-         .appendChild(template.content.cloneNode(true))
+    #answerText
 
-         this.#nextURL = 'https://courselab.lnu.se/quiz/question/1'
+    #answerRadio
 
-         this.#form = this.shadowRoot.querySelector('.answerForm')
+    constructor () {
+      super()
 
-         this.#question = this.shadowRoot.querySelector('.question')
+      this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
 
-         this.#form.addEventListener('submit', event => this.#handleSubmit(event))
-     }
+      this.#question = this.shadowRoot.querySelector('.question')
+      this.#answerText = this.shadowRoot.querySelector('.answerText')
+      this.#answerRadio = this.shadowRoot.querySelector('.answerRadio')
+    }
 
-     get nextURL () {
-         return this.#nextURL
-     }
+    startGame () {
+      this.#presentQuestion()
+    }
 
-     set nextURL (value) {
-         this.#nextURL = value
-     }
+    async #presentQuestion (url = 'https://courselab.lnu.se/quiz/question/1') {
+      await this.#fetchResponse(url)
+      this.#question.innerText = this.#response.question
 
-     async #handleSubmit (event) {
-        event.preventDefault()
+      this.#presentAnswer()
+    }
 
-        console.log('Hej hej')
-        let answer
-        if (this.#questionHasAlternatives) {
-            // To do
-        } else {
-            answer = this.shadowRoot.querySelector('input[type="text"]').value
-        }
+    async #fetchResponse (url) {
+      const response = await window.fetch(url)
+      this.#response = await response.json()
+    }
 
-        const response = await this.#postAnswer(answer)
-        this.#checkResponse(response)
-     }
-
-     #checkResponse (response) {
-         console.log(response.status)
-
-         if (response.ok) {
-             response.json().then(data => {
-                 this.nextURL = data.nextURL
-                console.log(data.nextURL)
-                this.#clearPreviousQuestion()
-             this.presentQuestion()
-                })
-             
-         } else {
-             console.log('Game Over')
-             // To do
-         }
-     }
-
-     #clearPreviousQuestion () {
-        this.#question.removeChild(this.#question.firstChild)
-        while (this.#form.firstChild) {
-            this.#form.removeChild(this.#form.firstChild)
-        }
-     }
-
-     async #postAnswer (answer) {
-         console.log(this.#nextURL)
-         const answerBody = {'answer': answer}
-         const result = await window.fetch(this.#nextURL, {
-             method: 'post',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify(answerBody)
-         })
-
-         return result
-     }
-
-     async #getQuestion () {
-        console.log(this.#nextURL)
-         const result = await window.fetch(this.#nextURL)
-         
-         return result.json()
-     }
-
-     async presentQuestion () {
-        
-        
-        const question = await this.#getQuestion()
-        this.nextURL = question.nextURL
-        console.log(this.#nextURL)
-        this.shadowRoot.querySelector('.question').innerText = question.question
-
-        if (question.limit) {
-            this.#presentAnswerTextfield(question)
-            this.#questionHasAlternatives = false
-        } else if (question.alternatives) {
-            this.#questionHasAlternatives = true
-           // this.#presentAnswerRadioButton(question)
-        }
-     }
-
-     #presentAnswerTextfield (question) {
-         const textfield = document.createElement('input')
-         textfield.type = 'text'
-         textfield.setAttribute('maxlength', question.limit)
-         const submit = document.createElement('input')
-         submit.type = 'submit'
-         submit.value = 'Submit'
-         this.#form.appendChild(textfield)
-         this.#form.appendChild(submit)
-     }
+    #presentAnswer () {
+      if (!this.#response.alternatives) {
+        this.#answerText.classList.toggle('hidden')
+      } else {
+        this.#answerRadio.classList.toggle('hidden')
+      }
+    }
   }
 )
