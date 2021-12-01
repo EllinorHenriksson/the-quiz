@@ -15,6 +15,9 @@ messageContainer.appendChild(message)
 
 // TODO: This is just some example code that you are free to use, modify or completely delete.
 
-// import './components/my-nickname/index.js'
-import './components/my-quiz-app/index.js'
-import './components/my-question/index.js'
+// import './components/my-quiz-app/index.js'
+// import './components/my-question/index.js'
+
+import './components/my-quiz-app2/index.js'
+import './components/my-nickname/index.js'
+// import './components/my-question2/index.js'

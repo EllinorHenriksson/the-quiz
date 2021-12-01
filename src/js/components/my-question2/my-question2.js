@@ -16,7 +16,7 @@ template.innerHTML = `
   </div>
 `
 
-customElements.define('my-question',
+customElements.define('my-question2',
   /**
    * Represents a my-hello element.
    */

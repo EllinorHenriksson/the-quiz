@@ -7,46 +7,54 @@
 
 const template = document.createElement('template')
 template.innerHTML = `
-<label for="nickname">Nickname</label>
-<input type="text" id="nickname">
-<button type="button">Done</button>
+<style>
+  input {
+    font-size: 16px;
+    background-color: #f8f8f8;
+    color: #2c3a44;  
+    border: 1px solid #2c3a44;
+    padding: 5px;
+  }
+
+  input[type="submit"] {
+    cursor: pointer;
+  }
+</style>
+
+<form>
+  <input type="text">
+  <input type="submit" value="Start">
+</form>
 `
 
 customElements.define('my-nickname',
-/**
- * Represents a my-nickname element.
- */
   class extends HTMLElement {
-    /**
-     * The text field element.
-     *
-     * @type {HTMLInputElement}
-     */
-    #textField
 
-    /**
-     * The button element.
-     *
-     * @type {HTMLButtonElement}
-     */
-    #button
-
-    /**
-     * Creates an instance of the current type.
-     */
+    #form
+    
+    #nickname
+    
     constructor () {
       super()
 
-      // Attach a shadow DOM tree to this element and append the template to the shadow root.
       this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
 
-      // Get the text field element in the shadow root.
-      this.#textField = this.shadowRoot.querySelector('input')
+      this.#form = this.shadowRoot.querySelector('form')
+      this.#nickname = this.shadowRoot.querySelector('input[type="text"]')
 
-      // Get the button element in the shadow root.
-      this.#button = this.shadowRoot.querySelector('button')
+      this.#form.addEventListener('submit', event => {
+        event.preventDefault()
+        event.stopPropagation()
 
-      this.#button.addEventListener('click', event =>  )
+        this.#handleSubmit()
+      })
+    
     }
+
+    #handleSubmit () {
+      const chooseNicknameEvent = new window.CustomEvent('chooseNickname', { detail: this.#nickname.value})
+      this.dispatchEvent(chooseNicknameEvent)
+    }
+
   })
 
