@@ -54,7 +54,6 @@ customElements.define('my-nickname',
 
       this.#form.addEventListener('submit', event => {
         event.preventDefault()
-        event.stopPropagation()
 
         this.#handleSubmit()
       })

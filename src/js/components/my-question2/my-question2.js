@@ -46,6 +46,7 @@ template.innerHTML = `
         display: none;
     }
   </style>
+
   <p class="question"></p>
   <form class="answerText hidden">
     <input type="text" placeholder="Answer">
@@ -72,6 +73,8 @@ customElements.define('my-question2',
 
     #submitRadio
 
+    //#label
+
     constructor () {
       super()
 
@@ -81,6 +84,18 @@ customElements.define('my-question2',
       this.#answerText = this.shadowRoot.querySelector('.answerText')
       this.#answerRadio = this.shadowRoot.querySelector('.answerRadio')
       this.#submitRadio = this.shadowRoot.querySelector('.answerRadio input')
+
+      this.shadowRoot.querySelector('.answerText').addEventListener('submit', event => {
+          event.preventDefault()
+
+          this.#handleSubmit()
+      })
+
+      this.shadowRoot.querySelector('.answerRadio').addEventListener('submit', event => {
+        event.preventDefault()
+
+        this.#handleSubmit()
+    })
     }
 
     startGame () {
@@ -88,13 +103,13 @@ customElements.define('my-question2',
     }
 
     async #presentQuestion (url = 'https://courselab.lnu.se/quiz/question/21') {
-      await this.#fetchResponse(url)
+      await this.#sendGETRequest(url)
       this.#question.innerText = this.#response.question
 
       this.#presentAnswer()
     }
 
-    async #fetchResponse (url) {
+    async #sendGETRequest (url) {
       const response = await window.fetch(url)
       this.#response = await response.json()
     }
@@ -121,7 +136,46 @@ customElements.define('my-question2',
           label.appendChild(textNode)
           this.#answerRadio.insertBefore(label, this.#submitRadio)
         }
+
+        //this.#label = this.shadowRoot.querySelector('label')
       }
     }
+
+    #handleSubmit () {
+      let answer
+      if (!this.#response.alternatives) {
+        answer = this.shadowRoot.querySelector('input[type="text"]').value
+      } else {
+          // radio answer
+          /*console.log('hej')
+          const checkedRadio = this.shadowRoot.querySelector('input[checked]')
+          console.log(checkedRadio)
+          answer = checkedRadio.value
+          console.log(answer)*/
+      }
+
+      this.#clearWindow()
+
+      //this.#sendPOSTRequest(this.#response.nextURL)
+    }
+
+    #clearWindow () {
+      this.#question.innerText = ''
+      
+      while (this.shadowRoot.querySelector('label')) {
+        this.#answerRadio.removeChild(this.shadowRoot.querySelector('label'))
+      }
+    }
+
+    /*async #sendPOSTRequest (url) {
+      let answer
+      if ()
+      const response = await window.fetch(url, {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(answerBody)
+    })
+      this.#response = await response.json()
+    }*/
   }
 )
