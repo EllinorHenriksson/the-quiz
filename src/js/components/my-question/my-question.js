@@ -96,13 +96,15 @@ customElements.define('my-question',
      }
 
      async #postAnswer (answer) {
-         console.log(this.#nextURL)
-         const answerBody = {'answer': answer}
-         const result = await window.fetch(this.#nextURL, {
-             method: 'post',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify(answerBody)
-         })
+       console.log(this.#nextURL)
+       const answerBody = {
+         hej: answer
+       }
+       const result = await window.fetch(this.#nextURL, {
+         method: 'post',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(answerBody)
+       })
 
          return result
      }

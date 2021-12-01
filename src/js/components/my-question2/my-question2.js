@@ -102,7 +102,7 @@ customElements.define('my-question2',
       this.#presentQuestion()
     }
 
-    async #presentQuestion (url = 'https://courselab.lnu.se/quiz/question/21') {
+    async #presentQuestion (url = 'https://courselab.lnu.se/quiz/question/1') {
       await this.#sendGETRequest(url)
       this.#question.innerText = this.#response.question
 
@@ -141,22 +141,18 @@ customElements.define('my-question2',
       }
     }
 
-    #handleSubmit () {
+    async #handleSubmit () {
       let answer
       if (!this.#response.alternatives) {
         answer = this.shadowRoot.querySelector('input[type="text"]').value
       } else {
-          // radio answer
-          /*console.log('hej')
-          const checkedRadio = this.shadowRoot.querySelector('input[checked]')
-          console.log(checkedRadio)
-          answer = checkedRadio.value
-          console.log(answer)*/
+        const checked = this.shadowRoot.querySelector('input[type="radio"]:checked')
+        answer = checked.value
       }
 
       this.#clearWindow()
-
-      //this.#sendPOSTRequest(this.#response.nextURL)
+      const response = await this.#sendPOSTRequest(this.#response.nextURL, answer)
+      this.#checkResponse(response)
     }
 
     #clearWindow () {
@@ -167,15 +163,28 @@ customElements.define('my-question2',
       }
     }
 
-    /*async #sendPOSTRequest (url) {
-      let answer
-      if ()
+    async #sendPOSTRequest (url, answer) {
+      const bodyJS = {
+        answer: answer
+      }
+
       const response = await window.fetch(url, {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(answerBody)
-    })
-      this.#response = await response.json()
-    }*/
+        body: JSON.stringify(bodyJS)
+      })
+    
+      return response
+    }
+
+    async #checkResponse (response) {
+        console.log(response.ok)
+      if (response.ok) {
+          this.#response = await response.json()
+      }
+      else {
+          // Game over
+      }
+    }
   }
 )
