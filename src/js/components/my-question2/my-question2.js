@@ -11,7 +11,7 @@ template.innerHTML = `
   <style>
   </style>
   <div class="quizQuestion">
-      <h2 class="question"></h2>
+      <h2 class="question">Question</h2>
       <form class="answerForm"></form>
   </div>
 `

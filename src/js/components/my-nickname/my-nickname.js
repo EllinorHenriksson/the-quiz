@@ -23,7 +23,7 @@ template.innerHTML = `
 
 <p>Choose a nickname, then start the quiz!</p>
 <form>
-  <input type="text">
+  <input type="text" placeholder="Nickname">
   <input type="submit" value="Start">
 </form>
 `

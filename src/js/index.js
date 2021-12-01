@@ -20,4 +20,4 @@ messageContainer.appendChild(message)
 
 import './components/my-quiz-app2/index.js'
 import './components/my-nickname/index.js'
-// import './components/my-question2/index.js'
+import './components/my-question2/index.js'

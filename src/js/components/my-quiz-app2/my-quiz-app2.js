@@ -69,8 +69,6 @@ customElements.define('my-quiz-app2',
 
     #quizApp
     
-    #welcome
-    
     #form
 
     #nickname
@@ -81,7 +79,6 @@ customElements.define('my-quiz-app2',
       this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
 
       this.#quizApp = this.shadowRoot.querySelector('.quizApp')
-      this.#welcome = this.shadowRoot.querySelector('.welcome')
       this.#form = this.shadowRoot.querySelector('.welcome form')
 
       this.#form.addEventListener('submit', event => {
@@ -91,15 +88,26 @@ customElements.define('my-quiz-app2',
     }
 
     #handleSubmit () {
-      this.#quizApp.removeChild(this.#welcome)
-      const myNickname = document.createElement('my-nickname')
-      this.#quizApp.appendChild(myNickname)
+      this.#clearWindow()
+      this.#fillWindow('my-nickname')
+
       this.shadowRoot.querySelector('my-nickname').addEventListener('chooseNickname', event => this.#setNickname(event.detail))
     }
 
     #setNickname (nickname) {
       this.#nickname = nickname
-      console.log(nickname)
+      
+      this.#clearWindow()
+      this.#fillWindow('my-question2')
+    }
+
+    #clearWindow () {
+      this.#quizApp.removeChild(this.#quizApp.firstElementChild)
+    }
+
+    #fillWindow (myCustomElement) {
+      const element = document.createElement(myCustomElement)
+      this.#quizApp.appendChild(element)
     }
 
   }
