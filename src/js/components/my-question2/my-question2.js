@@ -28,6 +28,10 @@ template.innerHTML = `
         right: 0;
     }
 
+    .answerRadio input[type="radio"] {
+        cursor: pointer;
+    }
+
     .answerRadio input[type="submit"] {
         position: absolute;
         right: 0px;
@@ -48,9 +52,9 @@ template.innerHTML = `
     <input type="submit" value="Submit">
   </form>
   <form class="answerRadio hidden">
+    <!-- <label><input type="radio" name="alternative" value="alt1">Alternative 1</label>
     <label><input type="radio" name="alternative" value="alt1">Alternative 1</label>
-    <label><input type="radio" name="alternative" value="alt1">Alternative 1</label>
-    <label><input type="radio" name="alternative" value="alt1">Alternative 1</label>
+    <label><input type="radio" name="alternative" value="alt1">Alternative 1</label> -->
     <input type="submit" value="Submit">
   </form>
 `
@@ -66,6 +70,8 @@ customElements.define('my-question2',
 
     #answerRadio
 
+    #submitRadio
+
     constructor () {
       super()
 
@@ -74,13 +80,14 @@ customElements.define('my-question2',
       this.#question = this.shadowRoot.querySelector('.question')
       this.#answerText = this.shadowRoot.querySelector('.answerText')
       this.#answerRadio = this.shadowRoot.querySelector('.answerRadio')
+      this.#submitRadio = this.shadowRoot.querySelector('.answerRadio input')
     }
 
     startGame () {
       this.#presentQuestion()
     }
 
-    async #presentQuestion (url = 'https://courselab.lnu.se/quiz/question/1') {
+    async #presentQuestion (url = 'https://courselab.lnu.se/quiz/question/21') {
       await this.#fetchResponse(url)
       this.#question.innerText = this.#response.question
 
@@ -97,6 +104,23 @@ customElements.define('my-question2',
         this.#answerText.classList.toggle('hidden')
       } else {
         this.#answerRadio.classList.toggle('hidden')
+
+        const keys = Object.keys(this.#response.alternatives)
+        const values = Object.values(this.#response.alternatives)
+
+        for (let i = 0; i < keys.length; i++) {
+          const label = document.createElement('label')
+          const input = document.createElement('input')
+          input.setAttribute('type', 'radio')
+          input.setAttribute('name', 'alternative')
+          const key = keys[i]
+          input.setAttribute('value', key)
+          label.appendChild(input)
+          const value = values[i]
+          const textNode = document.createTextNode(value)
+          label.appendChild(textNode)
+          this.#answerRadio.insertBefore(label, this.#submitRadio)
+        }
       }
     }
   }
