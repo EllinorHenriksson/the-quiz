@@ -32,25 +32,12 @@ template.innerHTML = `
     }
 
     .quizApp input {
-      /*padding: 15px;
-      border-radius: 20px;
-      font-size: 16px;
-      font-weight: bold;
-      border: 0px;
-      background-color: #f8f8f8;
-      color: #2c3a44;
-      cursor: pointer;
-      box-shadow: 5px 5px 15px #2c3a44;  */
       font-size: 16px;
       background-color: #f8f8f8;
       color: #2c3a44;  
       border: 1px solid #2c3a44;
       padding: 5px;
       cursor: pointer;
-    }
-
-    .hidden {
-        display: none;
     }
 
   </style>
@@ -70,10 +57,6 @@ template.innerHTML = `
         <input type="submit" value="Go to quiz">
       </form>
     </div>
-    <div class="nicknameContainer hidden">
-      <p>Choose a nickname, then start the quiz!</p>
-      <my-nickname></my-nickname>
-    </div>
     <!-- 
     <div class="testOutput"></div>
     <div class="question"></div>
@@ -84,13 +67,11 @@ template.innerHTML = `
 customElements.define('my-quiz-app2',
   class extends HTMLElement { 
 
+    #quizApp
+    
     #welcome
     
     #form
-
-    #nicknameContainer
-
-    #myNickname
 
     #nickname
    
@@ -99,26 +80,26 @@ customElements.define('my-quiz-app2',
        
       this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
 
+      this.#quizApp = this.shadowRoot.querySelector('.quizApp')
       this.#welcome = this.shadowRoot.querySelector('.welcome')
       this.#form = this.shadowRoot.querySelector('.welcome form')
-      this.#nicknameContainer = this.shadowRoot.querySelector('.nicknameContainer')
-      this.#myNickname = this.shadowRoot.querySelector('my-nickname')
 
       this.#form.addEventListener('submit', event => {
         event.preventDefault()
         this.#handleSubmit()
       })
-
-      this.#myNickname.addEventListener('chooseNickname', event => this.#setNickname(event.detail))
     }
 
     #handleSubmit () {
-      this.#welcome.classList.add('hidden')
-      this.#nicknameContainer.classList.toggle('hidden')
+      this.#quizApp.removeChild(this.#welcome)
+      const myNickname = document.createElement('my-nickname')
+      this.#quizApp.appendChild(myNickname)
+      this.shadowRoot.querySelector('my-nickname').addEventListener('chooseNickname', event => this.#setNickname(event.detail))
     }
 
     #setNickname (nickname) {
       this.#nickname = nickname
+      console.log(nickname)
     }
 
   }

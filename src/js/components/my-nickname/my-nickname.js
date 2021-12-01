@@ -21,6 +21,7 @@ template.innerHTML = `
   }
 </style>
 
+<p>Choose a nickname, then start the quiz!</p>
 <form>
   <input type="text">
   <input type="submit" value="Start">
