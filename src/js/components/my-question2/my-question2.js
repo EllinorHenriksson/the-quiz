@@ -69,11 +69,11 @@ customElements.define('my-question2',
 
     #answerText
 
+    //#submitText
+
     #answerRadio
 
     #submitRadio
-
-    //#label
 
     constructor () {
       super()
@@ -82,31 +82,29 @@ customElements.define('my-question2',
 
       this.#question = this.shadowRoot.querySelector('.question')
       this.#answerText = this.shadowRoot.querySelector('.answerText')
+      //this.#submitText = this.shadowRoot.querySelector('.answerText input[type="submit"]')
       this.#answerRadio = this.shadowRoot.querySelector('.answerRadio')
-      this.#submitRadio = this.shadowRoot.querySelector('.answerRadio input')
+      this.#submitRadio = this.shadowRoot.querySelector('.answerRadio input[type="submit"]')
 
-      this.shadowRoot.querySelector('.answerText').addEventListener('submit', event => {
-          event.preventDefault()
-
-          this.#handleSubmit()
+      this.#answerText.addEventListener('submit', event => {
+        event.preventDefault()
+        this.#handleSubmit()
       })
 
-      this.shadowRoot.querySelector('.answerRadio').addEventListener('submit', event => {
+      this.#answerRadio.addEventListener('submit', event => {
         event.preventDefault()
-
         this.#handleSubmit()
-    })
+      })
     }
 
-    startGame () {
-      this.#presentQuestion()
+    async nextQuestion (url = 'https://courselab.lnu.se/quiz/question/1') {
+      await this.#presentQuestion(url)
+      this.#presentAnswer()
     }
 
-    async #presentQuestion (url = 'https://courselab.lnu.se/quiz/question/1') {
+    async #presentQuestion (url) {
       await this.#sendGETRequest(url)
       this.#question.innerText = this.#response.question
-
-      this.#presentAnswer()
     }
 
     async #sendGETRequest (url) {
@@ -117,6 +115,7 @@ customElements.define('my-question2',
     #presentAnswer () {
       if (!this.#response.alternatives) {
         this.#answerText.classList.toggle('hidden')
+        this.shadowRoot.querySelector('input[type="text"]').focus()
       } else {
         this.#answerRadio.classList.toggle('hidden')
 
@@ -137,7 +136,7 @@ customElements.define('my-question2',
           this.#answerRadio.insertBefore(label, this.#submitRadio)
         }
 
-        //this.#label = this.shadowRoot.querySelector('label')
+        this.#answerRadio.firstElementChild.firstElementChild.focus()
       }
     }
 
@@ -146,8 +145,7 @@ customElements.define('my-question2',
       if (!this.#response.alternatives) {
         answer = this.shadowRoot.querySelector('input[type="text"]').value
       } else {
-        const checked = this.shadowRoot.querySelector('input[type="radio"]:checked')
-        answer = checked.value
+        answer = this.shadowRoot.querySelector('input[type="radio"]:checked').value
       }
 
       this.#clearWindow()
@@ -157,9 +155,17 @@ customElements.define('my-question2',
 
     #clearWindow () {
       this.#question.innerText = ''
+
+      this.shadowRoot.querySelector('input[type="text"]').value = ''
       
       while (this.shadowRoot.querySelector('label')) {
         this.#answerRadio.removeChild(this.shadowRoot.querySelector('label'))
+      }
+
+      if (!this.#response.alternatives) {
+        this.#answerText.classList.toggle('hidden')
+      } else {
+        this.#answerRadio.classList.toggle('hidden')
       }
     }
 
@@ -178,12 +184,24 @@ customElements.define('my-question2',
     }
 
     async #checkResponse (response) {
-        console.log(response.ok)
       if (response.ok) {
           this.#response = await response.json()
+          if (this.#response.nextURL) {
+            // Ladda nästa fråga
+            this.nextQuestion(this.#response.nextURL)
+          } else {
+            // Quiz completed
+            // Save time, save time and nickname in web storage
+            // Show high score
+            // Gör ovanstående genom att skicka custom event till my-quiz-app med {detail: {stopTime: 00:00}}. I my-quiz-app sparas stopTime undan i en privat egenskap. Byt ut content från my-question till en div med en text (om att användaren klarade quizet) och en my-highscore.
+            this.dispatchEvent(new window.CustomEvent('completeQuiz'))
+          }
       }
       else {
           // Game over
+          // Show highscore
+          // Gör ovanstående genom att skicka ett custom event till my-quiz-app. Byt ut innehållet från my-question till en div med en text (Wrong answer - Game over!) och en my-highscore.
+          this.dispatchEvent(new window.CustomEvent('gameOver', { detail: { cause: 'wrong answer' } }))
       }
     }
   }

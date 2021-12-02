@@ -5,6 +5,10 @@
  * @version 1.1.0
  */
 
+import '../my-nickname'
+import '../my-question2'
+import '../my-timer'
+
 // Define template.
 const template = document.createElement('template')
 template.innerHTML = `
@@ -49,6 +53,10 @@ template.innerHTML = `
       transform: translate(1px, 1px);
     }
 
+    .hidden {
+      display: none;
+    }
+
   </style>
 
   <div class="quizApp">
@@ -66,6 +74,13 @@ template.innerHTML = `
         <input type="submit" value="Go to quiz">
       </form>
     </div>
+    <my-nickname class="hidden"></my-nickname>
+    <!-- <my-question2 class="hidden"></my-question2> -->
+    <div class="question hidden">
+      <my-question2></my-question2>
+      <my-timer></my-timer>
+    </div>
+    
     <!-- 
     <div class="testOutput"></div>
     <div class="question"></div>
@@ -76,53 +91,79 @@ template.innerHTML = `
 customElements.define('my-quiz-app2',
   class extends HTMLElement { 
 
-    #quizApp
+    #welcome
     
     #form
 
+    #myNickname
+
+    #question
+
+    #myQuestion
+
     #nickname
+
+    #startTime
+
+    #stopTime
    
     constructor () {
       super()
        
       this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
 
-      this.#quizApp = this.shadowRoot.querySelector('.quizApp')
+      this.#welcome = this.shadowRoot.querySelector('.welcome')
       this.#form = this.shadowRoot.querySelector('.welcome form')
+      this.#myNickname = this.shadowRoot.querySelector('my-nickname')
+      this.#myQuestion = this.shadowRoot.querySelector('my-question2')
+      this.#question = this.shadowRoot.querySelector('.question')
 
       this.#form.addEventListener('submit', event => {
         event.preventDefault()
         this.#handleSubmit()
       })
+
+      this.#myNickname.addEventListener('startQuiz', event => this.#handleStartQuiz(event))
+      this.#myQuestion.addEventListener('completeQuiz', event => this.#handleCompleteQuiz(event))
+      this.#myQuestion.addEventListener('gameOver', event => this.#handleGameOver(event))
     }
 
     #handleSubmit () {
-      this.#clearWindow()
-      this.#fillWindow('my-nickname')
-
-      this.shadowRoot.querySelector('my-nickname').addEventListener('chooseNickname', event => this.#setNickname(event.detail))
+      this.#switchContent(this.#welcome, this.#myNickname)
     }
 
-    #setNickname (nickname) {
-      this.#nickname = nickname
-      
-      this.#clearWindow()
-      this.#fillWindow('my-question2')
-      this.#startGame()
+    #switchContent (toHide, toShow) {
+      toHide.classList.toggle('hidden')
+      toShow.classList.toggle('hidden')
+
+      if (toShow === this.#myNickname) {
+        this.#myNickname.setAttribute('active', '')
+      }
     }
 
-    #clearWindow () {
-      this.#quizApp.removeChild(this.#quizApp.firstElementChild)
+    #handleStartQuiz (event) {
+      this.#nickname = event.detail.nickname
+      this.#startTime = event.timeStamp
+
+      //this.#switchContent(this.#myNickname, this.#myQuestion)
+      this.#switchContent(this.#myNickname, this.#question)
+
+      this.#myQuestion.nextQuestion()
     }
 
-    #fillWindow (myCustomElement) {
-      const element = document.createElement(myCustomElement)
-      this.#quizApp.appendChild(element)
+    #handleCompleteQuiz (event) {
+      this.#stopTime = event.timeStamp
+      console.log('You made the quiz!')
     }
 
-    #startGame () {
-      this.shadowRoot.querySelector('my-question2').startGame()
+    #handleGameOver (event) {
+      if (event.detail.cause === 'wrong answer') {
+        // Wrong answer
+        console.log('Wrong answer - game over! Cause:', event.detail.cause)
+      } else {
+        // Time is out
+        console.log('You ran out of time - game over! Cause:', event.detail.cause)
+      }
     }
-
   }
 )

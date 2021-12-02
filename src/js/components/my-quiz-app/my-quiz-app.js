@@ -38,7 +38,6 @@ customElements.define('my-quiz-app',
 
      #form
 
-
      /**
       * Creates an instance of the current type.
       */
