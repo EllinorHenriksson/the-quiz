@@ -53,6 +53,11 @@ template.innerHTML = `
       transform: translate(1px, 1px);
     }
 
+    .question {
+      display: grid;
+      grid-template-columns: auto min-content;
+    }
+
     .hidden {
       display: none;
     }

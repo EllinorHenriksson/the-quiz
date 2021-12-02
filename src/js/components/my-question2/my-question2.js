@@ -22,10 +22,21 @@ template.innerHTML = `
         transform: translate(1px, 1px);
     }
 
-    .answerRadio label, .answerRadio input[type="submit"] {
+    .answerRadio {
+      display: grid;
+      grid-template-columns: max-content auto;
+      grid-template-areas: "left right"
+    }
+
+    .answerRadio div {
+      grid-area: left;
+      max-width: 400px;
+    }
+
+    .answerRadio label {
         display: block;
         margin-top: 5px;
-        right: 0;
+        word-break: break-all;
     }
 
     .answerRadio input[type="radio"] {
@@ -33,13 +44,13 @@ template.innerHTML = `
     }
 
     .answerRadio input[type="submit"] {
-        position: absolute;
-        right: 0px;
-        bottom: 0px;
-    }
-
-    .answerRadio {
-        position: relative;
+      display: block;  
+      grid-area: right;
+      width: max-content;
+      height: max-content;
+      padding: 5px;
+      align-self: end;
+      margin-left: 20px;
     }
 
     .hidden {
@@ -53,9 +64,7 @@ template.innerHTML = `
     <input type="submit" value="Submit">
   </form>
   <form class="answerRadio hidden">
-    <!-- <label><input type="radio" name="alternative" value="alt1">Alternative 1</label>
-    <label><input type="radio" name="alternative" value="alt1">Alternative 1</label>
-    <label><input type="radio" name="alternative" value="alt1">Alternative 1</label> -->
+    <div></div>
     <input type="submit" value="Submit">
   </form>
 `
@@ -133,10 +142,10 @@ customElements.define('my-question2',
           const value = values[i]
           const textNode = document.createTextNode(value)
           label.appendChild(textNode)
-          this.#answerRadio.insertBefore(label, this.#submitRadio)
+          this.#answerRadio.querySelector('div').appendChild(label)
         }
 
-        this.#answerRadio.firstElementChild.firstElementChild.focus()
+        this.#answerRadio.querySelector('div').firstElementChild.firstElementChild.focus()
       }
     }
 
@@ -159,7 +168,7 @@ customElements.define('my-question2',
       this.shadowRoot.querySelector('input[type="text"]').value = ''
       
       while (this.shadowRoot.querySelector('label')) {
-        this.#answerRadio.removeChild(this.shadowRoot.querySelector('label'))
+        this.#answerRadio.querySelector('div').removeChild(this.shadowRoot.querySelector('label'))
       }
 
       if (!this.#response.alternatives) {
@@ -193,14 +202,14 @@ customElements.define('my-question2',
             // Quiz completed
             // Save time, save time and nickname in web storage
             // Show high score
-            // Gör ovanstående genom att skicka custom event till my-quiz-app med {detail: {stopTime: 00:00}}. I my-quiz-app sparas stopTime undan i en privat egenskap. Byt ut content från my-question till en div med en text (om att användaren klarade quizet) och en my-highscore.
+            // Gör ovanstående genom att skicka custom event till my-quiz-app med {detail: {stopTime: 00:00}}. I my-quiz-app sparas stopTime undan i en privat egenskap. Byt ut content från div question till en div med en text (om att användaren klarade quizet) och en my-highscore.
             this.dispatchEvent(new window.CustomEvent('completeQuiz'))
           }
       }
       else {
           // Game over
           // Show highscore
-          // Gör ovanstående genom att skicka ett custom event till my-quiz-app. Byt ut innehållet från my-question till en div med en text (Wrong answer - Game over!) och en my-highscore.
+          // Gör ovanstående genom att skicka ett custom event till my-quiz-app. Byt ut content från div question (glöm inte att stoppa timern i my-timer!) till en div med en text (Wrong answer - Game over!) och en my-highscore.
           this.dispatchEvent(new window.CustomEvent('gameOver', { detail: { cause: 'wrong answer' } }))
       }
     }
