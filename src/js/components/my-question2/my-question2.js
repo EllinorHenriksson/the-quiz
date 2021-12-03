@@ -80,8 +80,6 @@ customElements.define('my-question2',
 
     #answerText
 
-    //#submitText
-
     #answerRadio
 
     #submitRadio
@@ -93,7 +91,6 @@ customElements.define('my-question2',
 
       this.#question = this.shadowRoot.querySelector('.question')
       this.#answerText = this.shadowRoot.querySelector('.answerText')
-      //this.#submitText = this.shadowRoot.querySelector('.answerText input[type="submit"]')
       this.#answerRadio = this.shadowRoot.querySelector('.answerRadio')
       this.#submitRadio = this.shadowRoot.querySelector('.answerRadio input[type="submit"]')
 
@@ -127,8 +124,13 @@ customElements.define('my-question2',
     }
 
     async #sendGETRequest (url) {
-      const response = await window.fetch(url)
-      this.#response = await response.json()
+      try {
+        const response = await window.fetch(url)
+        this.#response = await response.json()
+      } catch (error) {
+        console.error(error)
+        this.dispatchEvent(new CustomEvent('networkError'))
+      }
     }
 
     #presentAnswer () {
@@ -164,7 +166,11 @@ customElements.define('my-question2',
       if (!this.#response.alternatives) {
         answer = this.shadowRoot.querySelector('input[type="text"]').value
       } else {
-        answer = this.shadowRoot.querySelector('input[type="radio"]:checked').value
+        if (this.shadowRoot.querySelector('input[type="radio"]:checked')) {
+          answer = this.shadowRoot.querySelector('input[type="radio"]:checked').value
+        } else {
+          answer = ''
+        }
       }
 
       this.dispatchEvent(new CustomEvent('myQuestionSubmit'))
@@ -190,44 +196,38 @@ customElements.define('my-question2',
     }
 
     async #sendPOSTRequest (url, answer) {
-      const bodyJS = {
-        answer: answer
-      }
+      try {
+        const bodyJS = {
+          answer: answer
+        }
 
-      const response = await window.fetch(url, {
-        method: 'post',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyJS)
-      })
-    
-      return response
+        const response = await window.fetch(url, {
+          method: 'post',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyJS)
+        })
+
+        return response
+      } catch (error) {
+        console.error(error)
+        this.dispatchEvent(new CustomEvent('networkError'))
+      }
     }
 
     async #checkResponse (response) {
       if (response.ok) {
-          this.#response = await response.json()
-          if (response.status === 200 && this.#response.nextURL) {
-            // Ladda nästa fråga
-            this.nextQuestion(this.#response.nextURL)
-          } else if (response.status === 200) {
-            // Quiz completed
-            // Save time, save time and nickname in web storage
-            // Show high score
-            // Gör ovanstående genom att skicka custom event till my-quiz-app med {detail: {stopTime: 00:00}}. I my-quiz-app sparas stopTime undan i en privat egenskap. Byt ut content från div question till en div med en text (om att användaren klarade quizet) och en my-highscore.
-            this.dispatchEvent(new window.CustomEvent('completeQuiz'))
-          }
-      }
-      else {
-          // Game over
-          // Show highscore
-          // Gör ovanstående genom att skicka ett custom event till my-quiz-app. Byt ut content från div question (glöm inte att stoppa timern i my-timer!) till en div med en text (Wrong answer - Game over!) och en my-highscore.
-          if (response.status === 400) {
-            this.dispatchEvent(new window.CustomEvent('gameOver'))
-          } else {
-            // Skriv ut nåt i fönstret
-            console.log('Oops! Something went wrong.')
-          }
-          
+        this.#response = await response.json()
+        if (response.status === 200 && this.#response.nextURL) {
+          this.nextQuestion(this.#response.nextURL)
+        } else if (response.status === 200) {
+          this.dispatchEvent(new window.CustomEvent('completeQuiz'))
+        }
+      } else {
+        if (response.status === 400) {
+          this.dispatchEvent(new window.CustomEvent('wrongAnswer'))
+        } else {
+          this.dispatchEvent(new window.CustomEvent('statusNotOK'))
+        }
       }
     }
   }

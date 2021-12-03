@@ -58,6 +58,10 @@ template.innerHTML = `
       grid-template-columns: auto min-content;
     }
 
+    .networkError, .statusNotOK, .timeout, .wrongAnswer, .completeQuiz {
+      text-align: center;
+    }
+
     .hidden {
       display: none;
     }
@@ -82,6 +86,28 @@ template.innerHTML = `
     <div class="question hidden">
       <my-question2></my-question2>
       <my-timer></my-timer>
+    </div>
+    <div class="completeQuiz ">
+      <p>Yay, you completed the quiz!</p>
+      <p>High Score</p>
+    </div>
+    <div class="wrongAnswer hidden">
+      <p>Wrong answer - Game over!</p>
+      <p>High Score</p>
+    </div>
+    <div class="timeout hidden">
+      <p>You ran out of time - Game over!</p>
+      <p>High Score</p>
+    </div>
+    <div class="statusNotOK hidden">
+      <h2>Bad Status</h2>
+      <p>Oops! Something went wrong.</p>
+      <p>Try to reload the page.</p>
+    </div>
+    <div class="networkError hidden">
+      <h2>Network Error</h2>
+      <p>Oops! Something went wrong.</p>
+      <p>Try to reload the page.</p>
     </div>
     
     <!-- 
@@ -131,10 +157,12 @@ customElements.define('my-quiz-app2',
 
       this.#myNickname.addEventListener('startQuiz', event => this.#handleStartQuiz(event))
       this.#myQuestion.addEventListener('completeQuiz', event => this.#handleCompleteQuiz(event))
-      this.#myQuestion.addEventListener('gameOver', event => this.#handleGameOver())
+      this.#myQuestion.addEventListener('wrongAnswer', event => this.#handleWrongAnswer())
+      this.#myQuestion.addEventListener('statusNotOK', event => this.#handleStatusNotOK())
       this.#myTimer.addEventListener('timeout', event => this.#handleTimeout())
       this.#myQuestion.addEventListener('myQuestionSubmit', event => this.#handleMyQuestionSubmit())
       this.#myQuestion.addEventListener('questionPresented', event => this.#handleQuestionPresented(event))
+      this.#myQuestion.addEventListener('networkError', event => this.#handleNetworkError())
     }
 
     #handleSubmit () {
@@ -161,27 +189,36 @@ customElements.define('my-quiz-app2',
 
     #handleCompleteQuiz (event) {
       this.#stopTime = event.timeStamp
-      console.log('You made the quiz!')
+      this.#switchContent(this.#question, this.shadowRoot.querySelector('.completeQuiz'))
+      // Save time and nickname in web storage
+      // Show high score
     }
 
-    #handleGameOver () {
-      // Wrong answer
-      console.log('Wrong answer - game over!')
+    #handleWrongAnswer () {
+      this.#switchContent(this.#question, this.shadowRoot.querySelector('.wrongAnswer'))
+      // Show high score
     }
 
     #handleTimeout () {
-      // Time is out
-      console.log('Time is out - game over!')
+      this.#switchContent(this.#question, this.shadowRoot.querySelector('.timeout'))
+      // Show high score
     }
 
     #handleMyQuestionSubmit () {
-      console.log('Stoppa timern efter submit!')
       this.#myTimer.stopTimer()
     }
 
     #handleQuestionPresented (event) {
       this.#myTimer.setAttribute('limit', `${event.detail.limit}`)
       this.#myTimer.startTimer()
+    }
+
+    #handleStatusNotOK () {
+      this.#switchContent(this.#question, this.shadowRoot.querySelector('.statusNotOK'))
+    }
+
+    #handleNetworkError () {
+      this.#switchContent(this.#question, this.shadowRoot.querySelector('.networkError'))
     }
   }
 )
