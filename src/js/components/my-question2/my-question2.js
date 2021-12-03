@@ -74,6 +74,8 @@ customElements.define('my-question2',
     
     #response
 
+    #limit
+
     #question
 
     #answerText
@@ -109,6 +111,14 @@ customElements.define('my-question2',
     async nextQuestion (url = 'https://courselab.lnu.se/quiz/question/1') {
       await this.#presentQuestion(url)
       this.#presentAnswer()
+
+      if (this.#response.limit) {
+        this.#limit = this.#response.limit
+        console.log('The limit is: ', this.#limit)
+      } else {
+        this.#limit = 20
+      }
+      this.dispatchEvent(new CustomEvent('questionPresented', { detail: { limit: this.#limit }}))
     }
 
     async #presentQuestion (url) {
@@ -157,6 +167,7 @@ customElements.define('my-question2',
         answer = this.shadowRoot.querySelector('input[type="radio"]:checked').value
       }
 
+      this.dispatchEvent(new CustomEvent('myQuestionSubmit'))
       this.#clearWindow()
       const response = await this.#sendPOSTRequest(this.#response.nextURL, answer)
       this.#checkResponse(response)
@@ -195,10 +206,10 @@ customElements.define('my-question2',
     async #checkResponse (response) {
       if (response.ok) {
           this.#response = await response.json()
-          if (this.#response.nextURL) {
+          if (response.status === 200 && this.#response.nextURL) {
             // Ladda nästa fråga
             this.nextQuestion(this.#response.nextURL)
-          } else {
+          } else if (response.status === 200) {
             // Quiz completed
             // Save time, save time and nickname in web storage
             // Show high score
@@ -210,7 +221,13 @@ customElements.define('my-question2',
           // Game over
           // Show highscore
           // Gör ovanstående genom att skicka ett custom event till my-quiz-app. Byt ut content från div question (glöm inte att stoppa timern i my-timer!) till en div med en text (Wrong answer - Game over!) och en my-highscore.
-          this.dispatchEvent(new window.CustomEvent('gameOver', { detail: { cause: 'wrong answer' } }))
+          if (response.status === 400) {
+            this.dispatchEvent(new window.CustomEvent('gameOver'))
+          } else {
+            // Skriv ut nåt i fönstret
+            console.log('Oops! Something went wrong.')
+          }
+          
       }
     }
   }

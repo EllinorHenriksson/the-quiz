@@ -14,7 +14,7 @@ const template = document.createElement('template')
 template.innerHTML = `
   <style>
     .quizApp {
-      background: #9fbed3;
+      background-color: #9fbed3;
       padding: 1rem;
       max-width: 600px;
       margin: 50vh auto;
@@ -61,7 +61,6 @@ template.innerHTML = `
     .hidden {
       display: none;
     }
-
   </style>
 
   <div class="quizApp">
@@ -80,7 +79,6 @@ template.innerHTML = `
       </form>
     </div>
     <my-nickname class="hidden"></my-nickname>
-    <!-- <my-question2 class="hidden"></my-question2> -->
     <div class="question hidden">
       <my-question2></my-question2>
       <my-timer></my-timer>
@@ -106,6 +104,8 @@ customElements.define('my-quiz-app2',
 
     #myQuestion
 
+    #myTimer
+
     #nickname
 
     #startTime
@@ -122,6 +122,7 @@ customElements.define('my-quiz-app2',
       this.#myNickname = this.shadowRoot.querySelector('my-nickname')
       this.#myQuestion = this.shadowRoot.querySelector('my-question2')
       this.#question = this.shadowRoot.querySelector('.question')
+      this.#myTimer = this.shadowRoot.querySelector('my-timer')
 
       this.#form.addEventListener('submit', event => {
         event.preventDefault()
@@ -130,7 +131,10 @@ customElements.define('my-quiz-app2',
 
       this.#myNickname.addEventListener('startQuiz', event => this.#handleStartQuiz(event))
       this.#myQuestion.addEventListener('completeQuiz', event => this.#handleCompleteQuiz(event))
-      this.#myQuestion.addEventListener('gameOver', event => this.#handleGameOver(event))
+      this.#myQuestion.addEventListener('gameOver', event => this.#handleGameOver())
+      this.#myTimer.addEventListener('timeout', event => this.#handleTimeout())
+      this.#myQuestion.addEventListener('myQuestionSubmit', event => this.#handleMyQuestionSubmit())
+      this.#myQuestion.addEventListener('questionPresented', event => this.#handleQuestionPresented(event))
     }
 
     #handleSubmit () {
@@ -150,7 +154,6 @@ customElements.define('my-quiz-app2',
       this.#nickname = event.detail.nickname
       this.#startTime = event.timeStamp
 
-      //this.#switchContent(this.#myNickname, this.#myQuestion)
       this.#switchContent(this.#myNickname, this.#question)
 
       this.#myQuestion.nextQuestion()
@@ -161,14 +164,24 @@ customElements.define('my-quiz-app2',
       console.log('You made the quiz!')
     }
 
-    #handleGameOver (event) {
-      if (event.detail.cause === 'wrong answer') {
-        // Wrong answer
-        console.log('Wrong answer - game over! Cause:', event.detail.cause)
-      } else {
-        // Time is out
-        console.log('You ran out of time - game over! Cause:', event.detail.cause)
-      }
+    #handleGameOver () {
+      // Wrong answer
+      console.log('Wrong answer - game over!')
+    }
+
+    #handleTimeout () {
+      // Time is out
+      console.log('Time is out - game over!')
+    }
+
+    #handleMyQuestionSubmit () {
+      console.log('Stoppa timern efter submit!')
+      this.#myTimer.stopTimer()
+    }
+
+    #handleQuestionPresented (event) {
+      this.#myTimer.setAttribute('limit', `${event.detail.limit}`)
+      this.#myTimer.startTimer()
     }
   }
 )
