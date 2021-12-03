@@ -111,7 +111,6 @@ customElements.define('my-question2',
 
       if (this.#response.limit) {
         this.#limit = this.#response.limit
-        console.log('The limit is: ', this.#limit)
       } else {
         this.#limit = 20
       }

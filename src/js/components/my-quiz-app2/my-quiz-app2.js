@@ -87,17 +87,31 @@ template.innerHTML = `
       <my-question2></my-question2>
       <my-timer></my-timer>
     </div>
-    <div class="completeQuiz ">
-      <p>Yay, you completed the quiz!</p>
-      <p>High Score</p>
-    </div>
-    <div class="wrongAnswer hidden">
-      <p>Wrong answer - Game over!</p>
-      <p>High Score</p>
-    </div>
-    <div class="timeout hidden">
-      <p>You ran out of time - Game over!</p>
-      <p>High Score</p>
+    <div id="endDisplay">
+      <div class="completeQuiz hidden">
+        <p>Yay, you completed the quiz!</p>
+        <p>High Score</p>
+        <my-highscore></my-highscore>
+        <form class="playAgain">
+          <input type="submit" value="Play again">
+        </form> 
+      </div>
+      <div class="wrongAnswer hidden">
+        <p>Wrong answer - Game over!</p>
+        <p>High Score</p>
+        <my-highscore></my-highscore>
+        <form class="playAgain">
+          <input type="submit" value="Play again">
+        </form>
+      </div>
+      <div class="timeout hidden">
+        <p>You ran out of time - Game over!</p>
+        <p>High Score</p>
+        <my-highscore></my-highscore>
+        <form class="playAgain">
+          <input type="submit" value="Play again">
+        </form>
+      </div>
     </div>
     <div class="statusNotOK hidden">
       <h2>Bad Status</h2>
@@ -122,7 +136,7 @@ customElements.define('my-quiz-app2',
 
     #welcome
     
-    #form
+    #welcomeForm
 
     #myNickname
 
@@ -132,11 +146,21 @@ customElements.define('my-quiz-app2',
 
     #myTimer
 
+    #playAgainForms
+
+    #completeQuiz
+
+    #wrongAnswer
+
+    #timeout
+
     #nickname
 
     #startTime
 
     #stopTime
+
+    #totalTime
    
     constructor () {
       super()
@@ -144,14 +168,19 @@ customElements.define('my-quiz-app2',
       this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
 
       this.#welcome = this.shadowRoot.querySelector('.welcome')
-      this.#form = this.shadowRoot.querySelector('.welcome form')
+      this.#welcomeForm = this.shadowRoot.querySelector('.welcome form')
       this.#myNickname = this.shadowRoot.querySelector('my-nickname')
       this.#myQuestion = this.shadowRoot.querySelector('my-question2')
       this.#question = this.shadowRoot.querySelector('.question')
       this.#myTimer = this.shadowRoot.querySelector('my-timer')
+      this.#playAgainForms = this.shadowRoot.querySelectorAll('.playAgain')
+      this.#completeQuiz = this.shadowRoot.querySelector('.completeQuiz')
+      this.#wrongAnswer = this.shadowRoot.querySelector('.wrongAnswer')
+      this.#timeout = this.shadowRoot.querySelector('.timeout')
 
-      this.#form.addEventListener('submit', event => {
+      this.#welcomeForm.addEventListener('submit', event => {
         event.preventDefault()
+        event.stopPropagation()
         this.#handleSubmit()
       })
 
@@ -163,6 +192,13 @@ customElements.define('my-quiz-app2',
       this.#myQuestion.addEventListener('myQuestionSubmit', event => this.#handleMyQuestionSubmit())
       this.#myQuestion.addEventListener('questionPresented', event => this.#handleQuestionPresented(event))
       this.#myQuestion.addEventListener('networkError', event => this.#handleNetworkError())
+
+      this.#playAgainForms.forEach(element => {
+        element.addEventListener('submit', event => {
+          event.preventDefault()
+          this.#handlePlayAgainSubmit()
+        })
+      })
     }
 
     #handleSubmit () {
@@ -189,18 +225,19 @@ customElements.define('my-quiz-app2',
 
     #handleCompleteQuiz (event) {
       this.#stopTime = event.timeStamp
-      this.#switchContent(this.#question, this.shadowRoot.querySelector('.completeQuiz'))
+      this.#switchContent(this.#question, this.#completeQuiz)
       // Save time and nickname in web storage
+      this.#totalTime = Math.round((this.#stopTime - this.#startTime) / 1000)
       // Show high score
     }
 
     #handleWrongAnswer () {
-      this.#switchContent(this.#question, this.shadowRoot.querySelector('.wrongAnswer'))
+      this.#switchContent(this.#question, this.#wrongAnswer)
       // Show high score
     }
 
     #handleTimeout () {
-      this.#switchContent(this.#question, this.shadowRoot.querySelector('.timeout'))
+      this.#switchContent(this.#question, this.#timeout)
       // Show high score
     }
 
@@ -219,6 +256,17 @@ customElements.define('my-quiz-app2',
 
     #handleNetworkError () {
       this.#switchContent(this.#question, this.shadowRoot.querySelector('.networkError'))
+    }
+
+    #handlePlayAgainSubmit () {
+
+      if (!this.#completeQuiz.getAttribute('class').includes('hidden')) {
+        this.#switchContent(this.#completeQuiz, this.#myNickname)
+      } else if (!this.#wrongAnswer.getAttribute('class').includes('hidden')) {
+        this.#switchContent(this.#wrongAnswer, this.#myNickname)
+      } else if (!this.#timeout.getAttribute('class').includes('hidden')) {
+        this.#switchContent(this.#timeout, this.#myNickname)
+      }
     }
   }
 )
