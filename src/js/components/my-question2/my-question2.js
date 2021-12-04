@@ -110,8 +110,7 @@ customElements.define('my-question2',
       this.#presentAnswer()
 
       if (this.#response.limit) {
-        // Limit är en sträng
-        this.#limit = this.#response.limit
+        this.#limit = parseInt(this.#response.limit)
       } else {
         this.#limit = 20
       }

@@ -41,7 +41,9 @@ template.innerHTML = `
 customElements.define('my-timer',
   class extends HTMLElement {
 
-    #limit = 20
+    #limit
+
+    #count
     
     #timer
 
@@ -57,19 +59,20 @@ customElements.define('my-timer',
     }
 
     attributeChangedCallback (name, oldValue, newValue) {
-      if (name === 'limit') {
+      if (name === 'limit' && newValue !== oldValue) {
         this.#limit = newValue
       }
     }
 
     startTimer () {
+      this.#count = this.#limit
       this.#changeDisplay()
-      
+
       const timer = window.setInterval(() => {
-        this.#limit--
+        this.#count--
         this.#changeDisplay()
 
-        if (this.#limit === 0) {
+        if (this.#count === 0) {
           this.stopTimer()
           this.dispatchEvent(new CustomEvent('timeout'))
         }
@@ -81,15 +84,15 @@ customElements.define('my-timer',
     #changeDisplay () {
       let currentTime
 
-      if (this.#limit < 10) {
-        currentTime = `00:0${this.#limit}`
+      if (this.#count < 10) {
+        currentTime = `00:0${this.#count}`
       } else {
-        currentTime = `00:${this.#limit}`
+        currentTime = `00:${this.#count}`
       }
 
       const newTimeTextNode = document.createTextNode(currentTime)
       const oldTextNode = this.shadowRoot.querySelector('#time').firstChild
-      this.shadowRoot.querySelector('#time').replaceChild(newTimeTextNode, oldTextNode)  
+      this.shadowRoot.querySelector('#time').replaceChild(newTimeTextNode, oldTextNode)
     }
 
     stopTimer () {

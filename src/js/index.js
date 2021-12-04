@@ -19,3 +19,7 @@ messageContainer.appendChild(message)
 // import './components/my-question/index.js'
 
 import './components/my-quiz-app2'
+import './components/my-nickname'
+import './components/my-question2'
+import './components/my-timer'
+import './components/my-high-score'

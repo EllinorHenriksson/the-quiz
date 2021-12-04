@@ -8,6 +8,7 @@
 import '../my-nickname'
 import '../my-question2'
 import '../my-timer'
+import '../my-high-score'
 
 // Define template.
 const template = document.createElement('template')
@@ -58,8 +59,12 @@ template.innerHTML = `
       grid-template-columns: auto min-content;
     }
 
-    .networkError, .statusNotOK, .timeout, .wrongAnswer, .completeQuiz {
+    .networkError, .statusNotOK, #endDisplay {
       text-align: center;
+    }
+
+    #endDisplay form {
+      margin-top: 15px;
     }
 
     .hidden {
@@ -90,28 +95,20 @@ template.innerHTML = `
     <div id="endDisplay">
       <div class="completeQuiz hidden">
         <p>Yay, you completed the quiz!</p>
-        <p>High Score</p>
-        <my-highscore></my-highscore>
-        <form class="playAgain">
-          <input type="submit" value="Play again">
-        </form> 
       </div>
       <div class="wrongAnswer hidden">
         <p>Wrong answer - Game over!</p>
-        <p>High Score</p>
-        <my-highscore></my-highscore>
-        <form class="playAgain">
-          <input type="submit" value="Play again">
-        </form>
       </div>
       <div class="timeout hidden">
         <p>You ran out of time - Game over!</p>
-        <p>High Score</p>
-        <my-highscore></my-highscore>
-        <form class="playAgain">
-          <input type="submit" value="Play again">
-        </form>
       </div>
+      <div class="highScore hidden">
+          <h3>High Score</h3>
+          <my-high-score></my-high-score>
+          <form>
+            <input type="submit" value="Play again">
+          </form> 
+        </div>
     </div>
     <div class="statusNotOK hidden">
       <h2>Bad Status</h2>
@@ -130,7 +127,7 @@ customElements.define('my-quiz-app2',
   class extends HTMLElement { 
 
     #welcome
-    
+
     #welcomeForm
 
     #myNickname
@@ -141,13 +138,15 @@ customElements.define('my-quiz-app2',
 
     #myTimer
 
-    #playAgainForms
-
     #completeQuiz
 
     #wrongAnswer
 
     #timeout
+
+    #highScore
+
+    #myHighScore
 
     #nickname
 
@@ -156,10 +155,10 @@ customElements.define('my-quiz-app2',
     #stopTime
 
     #totalTime
-   
+
     constructor () {
       super()
-       
+
       this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
 
       this.#welcome = this.shadowRoot.querySelector('.welcome')
@@ -168,10 +167,11 @@ customElements.define('my-quiz-app2',
       this.#myQuestion = this.shadowRoot.querySelector('my-question2')
       this.#question = this.shadowRoot.querySelector('.question')
       this.#myTimer = this.shadowRoot.querySelector('my-timer')
-      this.#playAgainForms = this.shadowRoot.querySelectorAll('.playAgain')
       this.#completeQuiz = this.shadowRoot.querySelector('.completeQuiz')
       this.#wrongAnswer = this.shadowRoot.querySelector('.wrongAnswer')
       this.#timeout = this.shadowRoot.querySelector('.timeout')
+      this.#highScore = this.shadowRoot.querySelector('.highScore')
+      this.#myHighScore = this.shadowRoot.querySelector('my-high-score')
 
       this.#welcomeForm.addEventListener('submit', event => {
         event.preventDefault()
@@ -188,11 +188,9 @@ customElements.define('my-quiz-app2',
       this.#myQuestion.addEventListener('questionPresented', event => this.#handleQuestionPresented(event))
       this.#myQuestion.addEventListener('networkError', event => this.#handleNetworkError())
 
-      this.#playAgainForms.forEach(element => {
-        element.addEventListener('submit', event => {
-          event.preventDefault()
-          this.#handlePlayAgainSubmit()
-        })
+      this.#highScore.querySelector('form').addEventListener('submit', event => {
+        event.preventDefault()
+        this.#handlePlayAgainSubmit()
       })
     }
 
@@ -207,7 +205,8 @@ customElements.define('my-quiz-app2',
       if (toShow === this.#myNickname) {
         this.#myNickname.setAttribute('active', '')
       } else if (toShow === this.#completeQuiz || toShow === this.#wrongAnswer || toShow === this.#timeout) {
-        toShow.querySelector('input').focus()
+        this.#highScore.classList.toggle('hidden')
+        this.#highScore.querySelector('input').focus()
       }
     }
 
@@ -222,21 +221,21 @@ customElements.define('my-quiz-app2',
 
     #handleCompleteQuiz (event) {
       this.#stopTime = event.timeStamp
-      this.#switchContent(this.#question, this.#completeQuiz)
-      // Save time and nickname in web storage
       this.#totalTime = Math.round((this.#stopTime - this.#startTime) / 1000)
-      // Show high score
+      this.#myHighScore.setAttribute('length', '5')
+      this.#myHighScore.saveHighScore({ nickname: this.#nickname, totalTime: this.#totalTime })
+      this.#myHighScore.showHighScore()
+      
+      this.#switchContent(this.#question, this.#completeQuiz)
     }
 
     #handleWrongAnswer () {
       this.#switchContent(this.#question, this.#wrongAnswer)
-      // Show high score
     }
 
     #handleTimeout () {
       this.#switchContent(this.#question, this.#timeout)
       this.#myQuestion.clearWindow()
-      // Show high score
     }
 
     #handleMyQuestionSubmit () {
@@ -257,7 +256,6 @@ customElements.define('my-quiz-app2',
     }
 
     #handlePlayAgainSubmit () {
-
       if (!this.#completeQuiz.getAttribute('class').includes('hidden')) {
         this.#switchContent(this.#completeQuiz, this.#myNickname)
       } else if (!this.#wrongAnswer.getAttribute('class').includes('hidden')) {
@@ -265,6 +263,8 @@ customElements.define('my-quiz-app2',
       } else if (!this.#timeout.getAttribute('class').includes('hidden')) {
         this.#switchContent(this.#timeout, this.#myNickname)
       }
+
+      this.#highScore.classList.toggle('hidden')
     }
   }
 )
