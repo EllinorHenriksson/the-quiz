@@ -79,7 +79,7 @@ template.innerHTML = `
       </ul>
       <p>Good luck!</p>
       <form>
-        <input type="submit" value="Go to quiz">
+        <input type="submit" value="Go to quiz" autofocus>
       </form>
     </div>
     <my-nickname class="hidden"></my-nickname>
@@ -123,11 +123,6 @@ template.innerHTML = `
       <p>Oops! Something went wrong.</p>
       <p>Try to reload the page.</p>
     </div>
-    
-    <!-- 
-    <div class="testOutput"></div>
-    <div class="question"></div>
-    -->
   </div>
 `
 
@@ -211,6 +206,8 @@ customElements.define('my-quiz-app2',
 
       if (toShow === this.#myNickname) {
         this.#myNickname.setAttribute('active', '')
+      } else if (toShow === this.#completeQuiz || toShow === this.#wrongAnswer || toShow === this.#timeout) {
+        toShow.querySelector('input').focus()
       }
     }
 
@@ -238,6 +235,7 @@ customElements.define('my-quiz-app2',
 
     #handleTimeout () {
       this.#switchContent(this.#question, this.#timeout)
+      this.#myQuestion.clearWindow()
       // Show high score
     }
 
@@ -246,7 +244,7 @@ customElements.define('my-quiz-app2',
     }
 
     #handleQuestionPresented (event) {
-      this.#myTimer.setAttribute('limit', `${event.detail.limit}`)
+      this.#myTimer.setAttribute('limit', event.detail.limit)
       this.#myTimer.startTimer()
     }
 

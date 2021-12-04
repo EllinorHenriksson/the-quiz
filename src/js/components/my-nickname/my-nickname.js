@@ -63,15 +63,14 @@ customElements.define('my-nickname',
       return ['active']
     }
 
-    attributeChangedCallback (name, oldValue, newValue) {
-      if (name === 'active' && newValue !== oldValue) {
+    attributeChangedCallback (name) {
+      if (name === 'active') {
         this.#nickname.focus()
       }
     }
 
     #handleSubmit () {
       this.dispatchEvent(new window.CustomEvent('startQuiz', { detail: { nickname: this.#nickname.value }}))
+      this.#nickname.value = ''
     }
-
   })
-

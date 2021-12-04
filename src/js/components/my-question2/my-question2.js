@@ -110,6 +110,7 @@ customElements.define('my-question2',
       this.#presentAnswer()
 
       if (this.#response.limit) {
+        // Limit är en sträng
         this.#limit = this.#response.limit
       } else {
         this.#limit = 20
@@ -173,12 +174,12 @@ customElements.define('my-question2',
       }
 
       this.dispatchEvent(new CustomEvent('myQuestionSubmit'))
-      this.#clearWindow()
+      this.clearWindow()
       const response = await this.#sendPOSTRequest(this.#response.nextURL, answer)
       this.#checkResponse(response)
     }
 
-    #clearWindow () {
+    clearWindow () {
       this.#question.innerText = ''
 
       this.shadowRoot.querySelector('input[type="text"]').value = ''

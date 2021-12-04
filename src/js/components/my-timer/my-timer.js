@@ -57,7 +57,7 @@ customElements.define('my-timer',
     }
 
     attributeChangedCallback (name, oldValue, newValue) {
-      if (name === 'limit' && newValue !== oldValue) {
+      if (name === 'limit') {
         this.#limit = newValue
       }
     }
