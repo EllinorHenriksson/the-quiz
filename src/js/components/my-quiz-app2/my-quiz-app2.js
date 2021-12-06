@@ -104,7 +104,7 @@ template.innerHTML = `
       </div>
       <div class="highScore hidden">
           <h3>High Score</h3>
-          <my-high-score></my-high-score>
+          <my-high-score length="5"></my-high-score>
           <form>
             <input type="submit" value="Play again">
           </form> 
@@ -222,10 +222,8 @@ customElements.define('my-quiz-app2',
     #handleCompleteQuiz (event) {
       this.#stopTime = event.timeStamp
       this.#totalTime = Math.round((this.#stopTime - this.#startTime) / 1000)
-      this.#myHighScore.setAttribute('length', '5')
-      this.#myHighScore.saveHighScore({ nickname: this.#nickname, totalTime: this.#totalTime })
-      this.#myHighScore.showHighScore()
-      
+      this.#myHighScore.saveResult({ nickname: this.#nickname, totalTime: this.#totalTime })
+
       this.#switchContent(this.#question, this.#completeQuiz)
     }
 
@@ -234,8 +232,8 @@ customElements.define('my-quiz-app2',
     }
 
     #handleTimeout () {
-      this.#switchContent(this.#question, this.#timeout)
       this.#myQuestion.clearWindow()
+      this.#switchContent(this.#question, this.#timeout)
     }
 
     #handleMyQuestionSubmit () {

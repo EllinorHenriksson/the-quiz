@@ -19,28 +19,23 @@ template.innerHTML = `
 </style>
 <div>
 <div id="container">
-    <div>1. Ellen, 10s</div>
-    <div>2. Rebecca, 15s</div>
-    <div>3. Ida, 17s</div>
-    <div>4. Sofia, 20s</div>
-    <div>5. Nina, 25s</div>
 </div>
 `
 
 customElements.define('my-high-score',
   class extends HTMLElement {
-    
+
     //Längden på listan
     #length
-    
-    #nickname
 
-    #totalTime
+    #container
 
     constructor () {
       super()
 
       this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
+
+      this.#container = this.shadowRoot.querySelector('#container')
     }
 
     static get observedAttributes () {
@@ -50,28 +45,47 @@ customElements.define('my-high-score',
     attributeChangedCallback (name, oldValue, newValue) {
       if (name === 'length' && newValue !== oldValue) {
         this.#length = parseInt(newValue)
-        console.log(this.#length)
+        //window.localStorage.removeItem('quiz-result')
+        this.#createList()
       }
     }
 
-    //data är tänkt representera ett objekt med användarens nickname (string) och tid i sekunder (number)
-    saveHighScore (data) {
-      this.#nickname = data.nickname
-      this.#totalTime = data.totalTime
+    #createList () {
+      this.#container.innerHTML = ''
 
+      for (let i = 0; i < this.#length; i++) {
+        const div = document.createElement('div')
+        div.setAttribute('id', `${i + 1}`)
+        this.#container.appendChild(div)
+      }
+
+      if (window.localStorage.getItem('quiz-result')) {
+        this.#updateHighScore()
+      }
+    }
+
+    // data är tänkt representera ett objekt med användarens nickname (string) och tid i sekunder (number)
+    saveResult (data) {
       let result
+
       if (!window.localStorage.getItem('quiz-result')) {
-        result = [{ user: this.#nickname, score: this.#totalTime }]
+        result = [{ user: data.nickname, score: data.totalTime }]
         window.localStorage.setItem('quiz-result', JSON.stringify(result))
       } else {
         result = JSON.parse(window.localStorage.getItem('quiz-result'))
-        result.push({ user: this.#nickname, score: this.#totalTime })
+        result.push({ user: data.nickname, score: data.totalTime })
         window.localStorage.setItem('quiz-result', JSON.stringify(result))
       }
+
+      this.#updateHighScore()
     }
 
-    showHighScore () {
+    #updateHighScore () {
       const result = JSON.parse(window.localStorage.getItem('quiz-result'))
-      
+      result.sort((a, b) => a.score - b.score)
+
+      for (let i = 0; i < this.#length; i++) {
+        this.shadowRoot.getElementById(`${i + 1}`).textContent = `${i + 1}. ${result[i].user}, ${result[i].score}s`
+      }
     }
 })
