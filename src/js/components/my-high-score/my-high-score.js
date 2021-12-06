@@ -59,10 +59,19 @@ customElements.define('my-high-score',
       this.#nickname = data.nickname
       this.#totalTime = data.totalTime
 
-      // Save nickname and total time in web storage
+      let result
+      if (!window.localStorage.getItem('quiz-result')) {
+        result = [{ user: this.#nickname, score: this.#totalTime }]
+        window.localStorage.setItem('quiz-result', JSON.stringify(result))
+      } else {
+        result = JSON.parse(window.localStorage.getItem('quiz-result'))
+        result.push({ user: this.#nickname, score: this.#totalTime })
+        window.localStorage.setItem('quiz-result', JSON.stringify(result))
+      }
     }
 
     showHighScore () {
+      const result = JSON.parse(window.localStorage.getItem('quiz-result'))
       
     }
 })
