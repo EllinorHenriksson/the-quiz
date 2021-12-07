@@ -229,11 +229,13 @@ customElements.define('my-quiz-app2',
 
     #handleWrongAnswer () {
       this.#switchContent(this.#question, this.#wrongAnswer)
+      this.#myHighScore.checkStorage()
     }
 
     #handleTimeout () {
       this.#myQuestion.clearWindow()
       this.#switchContent(this.#question, this.#timeout)
+      this.#myHighScore.checkStorage()
     }
 
     #handleMyQuestionSubmit () {

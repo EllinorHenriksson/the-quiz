@@ -11,6 +11,7 @@ template.innerHTML = `
         border-bottom: 1px dotted #2c3a44;
         padding: 10px;
         margin: 0;
+        text-align: left;
     }
 
     :host {
@@ -56,6 +57,7 @@ customElements.define('my-high-score',
       for (let i = 0; i < this.#length; i++) {
         const div = document.createElement('div')
         div.setAttribute('id', `${i + 1}`)
+        div.textContent = `${i + 1}.`
         this.#container.appendChild(div)
       }
 
@@ -67,7 +69,6 @@ customElements.define('my-high-score',
     // data är tänkt representera ett objekt med användarens nickname (string) och tid i sekunder (number)
     saveResult (data) {
       let result
-
       if (!window.localStorage.getItem('quiz-result')) {
         result = [{ user: data.nickname, score: data.totalTime }]
         window.localStorage.setItem('quiz-result', JSON.stringify(result))
@@ -84,8 +85,14 @@ customElements.define('my-high-score',
       const result = JSON.parse(window.localStorage.getItem('quiz-result'))
       result.sort((a, b) => a.score - b.score)
 
-      for (let i = 0; i < this.#length; i++) {
+      for (let i = 0; i < result.length; i++) {
         this.shadowRoot.getElementById(`${i + 1}`).textContent = `${i + 1}. ${result[i].user}, ${result[i].score}s`
+      }
+    }
+
+    checkStorage () {
+      if (!window.localStorage.getItem('quiz-result')) {
+        this.#createList()
       }
     }
 })
