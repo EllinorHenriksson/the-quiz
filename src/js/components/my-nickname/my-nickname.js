@@ -5,6 +5,7 @@
  * @version 1.1.0
  */
 
+// Define template.
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
@@ -38,39 +39,59 @@ template.innerHTML = `
 `
 
 customElements.define('my-nickname',
+  /**
+   * Represents a my-nickname element.
+   */
   class extends HTMLElement {
+    /**
+     * The input type text element.
+     *
+     * @type {HTMLInputElement}
+     */
+    #textInput
 
-    #form
-    
-    #nickname
-    
+    /**
+     * Creates an instance of the current type.
+     */
     constructor () {
       super()
 
+      // Attach a shadow DOM tree to this element and append the template to the shadow root.
       this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
 
-      this.#form = this.shadowRoot.querySelector('form')
-      this.#nickname = this.shadowRoot.querySelector('input[type="text"]')
+      // Get the input type text element in the shadow DOM.
+      this.#textInput = this.shadowRoot.querySelector('input[type="text"]')
 
-      this.#form.addEventListener('submit', event => {
+      this.shadowRoot.querySelector('form').addEventListener('submit', event => {
         event.preventDefault()
         this.#handleSubmit()
       })
-    
     }
 
+    /**
+     * Attributes to monitor for changes.
+     *
+     * @returns {string[]} A string array of attributes to monitor.
+     */
     static get observedAttributes () {
       return ['active']
     }
 
+    /**
+     * Called when observed attribute(s) changes.
+     *
+     * @param {string} name - The attribute's name.
+     */
     attributeChangedCallback (name) {
       if (name === 'active') {
-        this.#nickname.focus()
+        this.#textInput.focus()
       }
     }
 
+    /**
+     * Handles the submit event.
+     */
     #handleSubmit () {
-      this.dispatchEvent(new window.CustomEvent('startQuiz', { detail: { nickname: this.#nickname.value }}))
-      this.#nickname.value = ''
+      this.dispatchEvent(new window.CustomEvent('startQuiz', { detail: { nickname: this.#textInput.value } }))
     }
   })
