@@ -227,7 +227,7 @@ customElements.define('my-quiz-app',
     #stopTime
 
     /**
-     * The player's total time.
+     * The player's total time (s).
      *
      * @type {number}
      */
@@ -239,10 +239,8 @@ customElements.define('my-quiz-app',
     constructor () {
       super()
 
-      // Attach a shadow DOM tree to this element and append the template to the shadow root.
       this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
 
-      // Get elements in the shadow DOM.
       this.#welcome = this.shadowRoot.querySelector('.welcome')
       this.#welcomeForm = this.shadowRoot.querySelector('.welcome form')
       this.#myNickname = this.shadowRoot.querySelector('my-nickname')
@@ -294,7 +292,7 @@ customElements.define('my-quiz-app',
       toShow.classList.toggle('hidden')
 
       if (toShow === this.#myNickname) {
-        this.#myNickname.setAttribute('active', '')
+        this.#myNickname.setFocus()
       } else if (toShow === this.#completeQuiz || toShow === this.#wrongAnswer || toShow === this.#timeout) {
         this.#highScore.classList.toggle('hidden')
         this.#highScore.querySelector('input').focus()

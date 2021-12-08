@@ -74,7 +74,7 @@ template.innerHTML = `
 
 customElements.define('my-question',
   /**
-   * Represents a my-nickname element.
+   * Represents a my-timer element.
    */
   class extends HTMLElement {
     /**
@@ -118,10 +118,8 @@ customElements.define('my-question',
     constructor () {
       super()
 
-      // Attach a shadow DOM tree to this element and append the template to the shadow root.
       this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
 
-      // Get elements in the shadow DOM.
       this.#question = this.shadowRoot.querySelector('#question')
       this.#answerText = this.shadowRoot.querySelector('.answerText')
       this.#answerRadio = this.shadowRoot.querySelector('.answerRadio')
@@ -151,7 +149,7 @@ customElements.define('my-question',
       } else {
         this.#limit = 20
       }
-      this.dispatchEvent(new CustomEvent('questionPresented', { detail: { limit: this.#limit }}))
+      this.dispatchEvent(new CustomEvent('questionPresented', { detail: { limit: this.#limit } }))
     }
 
     /**

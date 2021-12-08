@@ -1,3 +1,11 @@
+/**
+ * The my-high-score web component module.
+ *
+ * @author Ellinor Henriksson <eh224kr@student.lnu.se>
+ * @version 1.1.0
+ */
+
+// Define template.
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
@@ -18,19 +26,33 @@ template.innerHTML = `
         display: inline-block;
     }
 </style>
-<div>
+
 <div id="container">
 </div>
 `
 
 customElements.define('my-high-score',
+  /**
+   * Represents a my-high-score element.
+   */
   class extends HTMLElement {
-
-    //Längden på listan
+    /**
+     * The length of the list.
+     *
+     * @type {number}
+     */
     #length
 
+    /**
+     * The container element.
+     *
+     * @type {HTMLDivElement}
+     */
     #container
 
+    /**
+     * Creates an instance of the current type.
+     */
     constructor () {
       super()
 
@@ -39,18 +61,32 @@ customElements.define('my-high-score',
       this.#container = this.shadowRoot.querySelector('#container')
     }
 
+    /**
+     * Attributes to monitor for changes.
+     *
+     * @returns {string[]} A string array of attributes to monitor.
+     */
     static get observedAttributes () {
       return ['length']
     }
 
+    /**
+     * Called when observed attribute(s) changes.
+     *
+     * @param {string} name - The attribute's name.
+     * @param {string} oldValue - The old attribute value.
+     * @param {string} newValue - The new attribute value.
+     */
     attributeChangedCallback (name, oldValue, newValue) {
       if (name === 'length' && newValue !== oldValue) {
         this.#length = parseInt(newValue)
-        //window.localStorage.removeItem('quiz-result')
         this.#createList()
       }
     }
 
+    /**
+     * Creates a high score list and updates it if there are any saved results.
+     */
     #createList () {
       this.#container.innerHTML = ''
 
@@ -66,7 +102,11 @@ customElements.define('my-high-score',
       }
     }
 
-    // data är tänkt representera ett objekt med användarens nickname (string) och tid i sekunder (number)
+    /**
+     * Saves the result of the current quiz round in the local web storage.
+     *
+     * @param {object} data - The player's nickname and total time (s).
+     */
     saveResult (data) {
       let result
       if (!window.localStorage.getItem('quiz-result')) {
@@ -81,6 +121,9 @@ customElements.define('my-high-score',
       this.#updateHighScore()
     }
 
+    /**
+     * Updates the high score list so that it presents the five fastest players.
+     */
     #updateHighScore () {
       const result = JSON.parse(window.localStorage.getItem('quiz-result'))
       result.sort((a, b) => a.score - b.score)
@@ -90,9 +133,13 @@ customElements.define('my-high-score',
       }
     }
 
+    /**
+     * Checks if there are any saved results and creates an empty list if not.
+     */
     checkStorage () {
       if (!window.localStorage.getItem('quiz-result')) {
         this.#createList()
       }
     }
-})
+  }
+)
