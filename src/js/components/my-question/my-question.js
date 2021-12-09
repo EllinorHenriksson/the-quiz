@@ -171,8 +171,8 @@ customElements.define('my-question',
       try {
         const response = await window.fetch(url)
         this.#response = await response.json()
-      } catch (error) {
-        console.error(error)
+      } catch {
+        console.log('An error occured.')
         this.dispatchEvent(new CustomEvent('networkError'))
       }
     }
@@ -267,8 +267,8 @@ customElements.define('my-question',
         })
 
         return response
-      } catch (error) {
-        console.error(error)
+      } catch {
+        console.log('An error occured.')
         this.dispatchEvent(new CustomEvent('networkError'))
       }
     }
